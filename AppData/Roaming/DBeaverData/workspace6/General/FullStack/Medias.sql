@@ -30,9 +30,37 @@ WHERE d.DIRECTOR_BIRTH_DATE >= '1980-01-01'
 AND d.DIRECTOR_DEAD_DATE IS NULL;
 
 --19. Indica si hay alguna coincidencia de nacimiento de ciudad (y si las hay, indicarlas) entre los miembros del videoclub y los directores.
-SELECT me.MEMBER_TOWN AS "Ciudad del Socio", d.DIRECTOR_BIRTH_PLACE AS "Ciudad del Director"
+SELECT me.MEMBER_NAME AS "Nombre Socio", me.MEMBER_TOWN AS "Ciudad del Socio",d.DIRECTOR_NAME AS "Nombre Director", d.DIRECTOR_BIRTH_PLACE AS "Ciudad del Director"
 FROM PUBLIC.MEMBERS me
 INNER JOIN PUBLIC.MEMBERS_MOVIE_RENTAL mr ON mr.MEMBER_ID = me.MEMBER_ID 
 INNER JOIN PUBLIC.MOVIES m ON m.MOVIE_ID = mr.MOVIE_ID 
 INNER JOIN PUBLIC.DIRECTORS d ON d.DIRECTOR_ID = m.DIRECTOR_ID 
 WHERE d.DIRECTOR_BIRTH_PLACE = me.MEMBER_TOWN;
+
+--20. Devuelve el nombre y el año de todas las películas que han sido producidas por un estudio que actualmente no esté activo
+SELECT m.MOVIE_NAME AS "Titulo" , m.MOVIE_LAUNCH_DATE AS "Fecha Estreno"
+FROM PUBLIC.STUDIOS s
+INNER JOIN PUBLIC.MOVIES m ON m.STUDIO_ID = s.STUDIO_ID 
+WHERE s.STUDIO_ACTIVE = 0;
+
+--21. Devuelve una lista de las últimas 10 películas que se han alquilado
+SELECT m.MOVIE_NAME AS "Titulo", mr.MEMBER_RENTAL_DATE AS "Fecha Alquiler"
+FROM PUBLIC.MOVIES m
+INNER JOIN PUBLIC.MEMBERS_MOVIE_RENTAL mr ON mr.MOVIE_ID  = m.MOVIE_ID
+ORDER BY mr.MEMBER_RENTAL_DATE DESC LIMIT 10;
+
+--22. Indica cuántas películas ha realizado cada director antes de cumplir 41 años
+SELECT d.DIRECTOR_NAME AS "Nombre Director", COUNT(m.MOVIE_ID) AS "Peliculas Dirigidas"
+FROM PUBLIC.DIRECTORS d
+INNER JOIN PUBLIC.MOVIES m ON m.DIRECTOR_ID = d.DIRECTOR_ID 
+WHERE DATEADD(YEAR, 40, d.DIRECTOR_BIRTH_DATE) >= m.MOVIE_LAUNCH_DATE
+GROUP BY d.DIRECTOR_NAME
+ORDER BY COUNT(m.MOVIE_ID) DESC;
+
+--23. Indica cuál es la media de duración de las películas de cada director
+SELECT d.DIRECTOR_NAME AS "Director", AVG(m.MOVIE_DURATION) AS "Media Duración"
+FROM PUBLIC.DIRECTORS d
+INNER JOIN PUBLIC.MOVIES m ON m.DIRECTOR_ID = d.DIRECTOR_ID
+GROUP BY d.DIRECTOR_NAME 
+ORDER BY m.MOVIE_DURATION DESC;
+
