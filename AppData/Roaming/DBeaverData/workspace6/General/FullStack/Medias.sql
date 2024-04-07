@@ -61,6 +61,22 @@ ORDER BY COUNT(m.MOVIE_ID) DESC;
 SELECT d.DIRECTOR_NAME AS "Director", AVG(m.MOVIE_DURATION) AS "Media Duración"
 FROM PUBLIC.DIRECTORS d
 INNER JOIN PUBLIC.MOVIES m ON m.DIRECTOR_ID = d.DIRECTOR_ID
-GROUP BY d.DIRECTOR_NAME 
-ORDER BY m.MOVIE_DURATION DESC;
+GROUP BY d.DIRECTOR_NAME;
 
+--24. Indica cuál es el nombre y la duración mínima de la película que ha sido alquilada en los últimos 2 años por los miembros del videoclub (La "fecha de ejecución" en este script es el 25-01-2019)
+SELECT m.MOVIE_NAME AS "Titulo Pelicula", m.MOVIE_DURATION AS "Duración"
+FROM PUBLIC.MOVIES m
+INNER JOIN PUBLIC.MEMBERS_MOVIE_RENTAL mmr
+ON m.MOVIE_ID = MMR.MOVIE_ID
+WHERE DATEDIFF(YEAR, mmr.MEMBER_RENTAL_DATE, '2019-01-25') <= 2
+ORDER BY m.MOVIE_DURATION ASC
+LIMIT 1;
+
+--25. Indica el número de películas que hayan hecho los directores durante las décadas de los 60, 70 y 80 que contengan la palabra "The" en cualquier parte del título.
+SELECT COUNT (m.MOVIE_ID) AS "Total de Peliculas", d.DIRECTOR_NAME AS "Director"
+FROM PUBLIC.MOVIES m
+INNER JOIN PUBLIC.DIRECTORS d
+ON m.DIRECTOR_ID = d.DIRECTOR_ID
+WHERE YEAR(m.MOVIE_LAUNCH_DATE) BETWEEN '1960' AND '1989'
+AND ((m.MOVIE_NAME LIKE 'The %') OR (m.MOVIE_NAME LIKE '% The %') OR (m.MOVIE_NAME LIKE '% The'))
+GROUP BY d.DIRECTOR_NAME, m.MOVIE_NAME;
